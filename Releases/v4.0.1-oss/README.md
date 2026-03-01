@@ -1,135 +1,133 @@
 <div align="center">
 
-# PAI v4.0.1 — Upgrade Path & Preferences
+# PAI v4.0.1-OSS — Provider-Agnostic Personal AI Infrastructure
 
-**Patch release: better upgrade experience, configurable temperature units, spinner tips sync, FAQ fixes.**
+**Full fork of PAI v4.0.1 replacing Claude Code with an open, provider-agnostic orchestration layer.**
 
-[![Skills](https://img.shields.io/badge/Skills-63-22C55E?style=flat)](../../skills/)
-[![Categories](https://img.shields.io/badge/Categories-13-3B82F6?style=flat)](../../skills/)
-[![Hooks](https://img.shields.io/badge/Hooks-21-F97316?style=flat)](../../hooks/)
-[![Workflows](https://img.shields.io/badge/Workflows-338-8B5CF6?style=flat)](../../skills/)
-[![Tips](https://img.shields.io/badge/Tips-202-10B981?style=flat)](../../)
-[![Algorithm](https://img.shields.io/badge/Algorithm-v3.6.0-D97706?style=flat)](../../PAI/Algorithm/)
+[![Providers](https://img.shields.io/badge/Providers-10-22C55E?style=flat)](.claude/PAI/Shell/providers/)
+[![Tools](https://img.shields.io/badge/Tools-14-3B82F6?style=flat)](.claude/PAI/Shell/tools/)
+[![Lines](https://img.shields.io/badge/New_TS-4%2C479_lines-F97316?style=flat)](.claude/PAI/Shell/)
+[![Skills](https://img.shields.io/badge/Skills-63-8B5CF6?style=flat)](.claude/skills/)
+[![Hooks](https://img.shields.io/badge/Hooks-21-10B981?style=flat)](.claude/hooks/)
+[![Algorithm](https://img.shields.io/badge/Algorithm-v3.6.0-D97706?style=flat)](.claude/PAI/Algorithm/)
 
 </div>
 
 ---
 
-## What Changed
+## What Is This?
 
-This is a patch release addressing community feedback from [Discussion #754](https://github.com/danielmiessler/Personal_AI_Infrastructure/discussions/754) about upgrade difficulties and missing preferences.
+PAI-OSS replaces Claude Code's closed-source agent loop with **PAI Shell** — a Bun-powered agentic CLI that routes through any LLM provider while preserving PAI's full infrastructure (Algorithm, Skills, Hooks, Agents, Memory, TELOS).
 
-### 1. Upgrade Path Documentation
-
-The main README now has separate **Fresh Install** and **Upgrading from a Previous Version** sections with explicit steps:
-
-- Back up before upgrading
-- The installer auto-detects existing installations
-- `settings.json` merges intelligently (only installer-managed fields are updated)
-- `USER/` files are never touched
-- Post-upgrade checklist included
-
-### 2. Temperature Unit Preference
-
-New `preferences` section in `settings.json`:
-
-```json
-"preferences": {
-  "temperatureUnit": "fahrenheit"
-}
-```
-
-- **Installer asks** during the identity step — choose Fahrenheit or Celsius
-- **Statusline honors the setting** — reads from `settings.json`, passes to Open-Meteo API, displays the correct °F or °C symbol
-- **Existing users** can change it manually in `settings.json` at any time
-- Default: `fahrenheit` (configurable during install)
-
-### 3. Statusline Bug Fixes
-
-Community-reported fixes from PRs [#762](https://github.com/danielmiessler/Personal_AI_Infrastructure/pull/762), [#780](https://github.com/danielmiessler/Personal_AI_Infrastructure/pull/780), and [#806](https://github.com/danielmiessler/Personal_AI_Infrastructure/pull/806):
-
-- **Hardcoded timezone removed** — now reads `principal.timezone` from `settings.json` instead of hardcoded `America/Los_Angeles`
-- **Broken context fallback removed** — the `/clear` command produced stale context percentages from a manual token calculation
-- **Startup estimate removed** — the self-calibrating startup estimate cached previous session data, inflating fresh session context %
-- **f-string syntax fix** — nested escaped double quotes inside Python f-strings caused parse errors on some shells
-
-### 4. Spinner Tips Sync with Algorithm v3.6.0
-
-Full audit and update of all 202 spinner tips in `settings.json` against the current system state:
-
-- **21 stale tips fixed** — wrong counts (15→14 agents, 20→21 hooks, 77→21 skill categories), removed effort tiers (Instant/Fast no longer exist), non-existent agents (Intern), outdated ISC scales, wrong phase thresholds
-- **14 new tips added** — Components system, LoadContext.hook.ts, hierarchical skill architecture, PRD format (8 frontmatter fields, 4 body sections), voice announcements, context compaction, SkillGuard/AgentExecutionGuard hooks, pack elimination
-- **Algorithm version bumped** — v3.5.0 → v3.6.0 throughout
-- **Zero sensitive data** — all template variables preserved (`{DAIDENTITY.NAME}`, `{PRINCIPAL.NAME}`, etc.)
-
-### 5. FAQ Fixes
-
-- **Removed stale Python reference** — PAI v4.0 is TypeScript and Bash, not Python
-- **Improved "What if I break something?" answer** — Now explains that USER/ is preserved, settings merge not overwrite, and backup strategy
+> For the complete architecture, configuration reference, and file structure, see **[PAI-OSS-README.md](PAI-OSS-README.md)**.
 
 ---
 
-## Files Changed (from v4.0.0)
+## What Changed (from v4.0.1)
 
-| File | Change |
+### PAI Shell — New Provider-Agnostic Orchestration Layer
+
+A complete agentic CLI with an interactive REPL, single-shot `--print` mode, and a tool execution loop that gives the model filesystem access, code editing, terminal execution, search, and agent delegation — all routed through any configured LLM provider.
+
+### ModelRouter — Tier-Based Routing Engine
+
+Resolves inference tiers (`fast` / `standard` / `smart` / `reasoning`) to specific provider + model combinations with fallback chains, health checks, and usage tracking. Replaces hard-coded Haiku/Sonnet/Opus references.
+
+### 10 Providers (6 API + 4 CLI Agent)
+
+| Type | Provider | Description |
+|------|----------|-------------|
+| API | **Ollama** | Local models at `localhost:11434` |
+| API | **llama.cpp** | Local models at `localhost:8080` |
+| API | **OpenRouter** | 100+ commercial models via API |
+| API | **OpenAI** | GPT-4o, o3, etc. |
+| API | **Anthropic** | Claude models (with format translation) |
+| API | **Generic OpenAI** | Any OpenAI-compatible server (vLLM, LM Studio, Groq, Together, etc.) |
+| CLI Agent | **Claude Code** | Anthropic's coding agent |
+| CLI Agent | **Codex** | OpenAI's coding agent |
+| CLI Agent | **Gemini CLI** | Google's CLI agent |
+| CLI Agent | **Aider** | Open-source AI pair programmer |
+
+### 14 Tools
+
+| Category | Tools |
+|----------|-------|
+| File | `read_file`, `write_file`, `list_directory`, `glob_search`, `file_info` |
+| Code | `replace_in_file`, `multi_replace`, `insert_at_line` |
+| Terminal | `run_command`, `run_background` |
+| Search | `grep_search`, `find_files` |
+| Agent | `ask_user`, `web_fetch`, `delegate_to_agent`, `todo_write`, `think` |
+
+### Tool Calling Strategies
+
+Three strategies to handle models with and without native function calling:
+- **Native** — model supports OpenAI `tools` parameter
+- **Prompt-based** — tool schemas injected into system prompt, JSON parsed from output
+- **Hybrid** — try native first, fall back to prompt-based
+
+### Provider-Agnostic Inference.ts
+
+Same public API (`InferenceLevel`, `InferenceOptions`, `InferenceResult`, `inference()`), now routes through ModelRouter instead of spawning `claude --print`. All existing hooks and tools that call `Inference.ts` work without changes.
+
+### Default Configuration
+
+Local-first: Ollama and llama.cpp enabled by default. Commercial APIs (OpenRouter, OpenAI, Anthropic) disabled by default. Each tier has configurable fallback chains.
+
+---
+
+## Files Changed (from v4.0.1)
+
+| Path | Change |
 |------|--------|
-| `settings.json` | Added `preferences.temperatureUnit`, synced 202 spinner tips, Algorithm v3.6.0 |
-| `statusline-command.sh` | Temp unit pref, dynamic timezone, context/startup/f-string fixes |
-| `PAI-Install/engine/types.ts` | Added `temperatureUnit` to collected data and PAIConfig |
-| `PAI-Install/engine/config-gen.ts` | Outputs `preferences` section |
-| `PAI-Install/engine/actions.ts` | Temp unit prompt in identity step, preserves preferences on upgrade |
+| `PAI/Shell/pai-shell.ts` | **New** — Agentic REPL entry point (696 lines) |
+| `PAI/Shell/ModelRouter.ts` | **New** — Tier routing engine (507 lines) |
+| `PAI/Shell/types.ts` | **New** — Core type definitions (241 lines) |
+| `PAI/Shell/defaults.ts` | **New** — Default provider/routing config (176 lines) |
+| `PAI/Shell/providers/Provider.ts` | **New** — Abstract interface + base classes (378 lines) |
+| `PAI/Shell/providers/*.ts` | **New** — 10 provider implementations + registry |
+| `PAI/Shell/tools/*.ts` | **New** — 14 tool definitions + handlers + registry |
+| `PAI/Tools/Inference.ts` | **Replaced** — Routes through ModelRouter (same public API) |
+| `PAI/Tools/Inference.ts.original` | **Backup** — Original Claude CLI-based version |
+| `PAI-OSS-README.md` | **New** — Full architecture & configuration reference |
 
 ---
 
-## Installation
+## What's Preserved from v4.0.1
 
-### Fresh Install
+Everything outside `PAI/Shell/` and `PAI/Tools/Inference.ts` is unchanged:
+
+- **Algorithm v3.6.0** — The continuously upgrading execution framework
+- **63 Skills** across 13 categories — Research, Security, Media, Thinking, etc.
+- **21 Hooks** — Event-driven automation (session lifecycle, voice, history)
+- **Agent System** — Custom agent composition, delegation, parallel execution
+- **Memory System** — Session history, work logs, learning patterns
+- **TELOS** — Life OS, goals, projects, beliefs
+- **338 Workflows** — All skill workflows intact
+- **v4.0.1 Patch Fixes** — Upgrade path, temperature units, statusline fixes, spinner tips sync
+
+---
+
+## Quick Start
 
 ```bash
-git clone https://github.com/danielmiessler/Personal_AI_Infrastructure.git
-cd Personal_AI_Infrastructure/Releases/v4.0.1
+# 1. Generate default settings
+bun ~/.claude/PAI/Shell/pai-shell.ts --init
 
-cp -r .claude ~/ && cd ~/.claude && bash install.sh
-```
+# 2. Edit provider settings
+vim ~/.claude/pai-oss-settings.json
 
-### Upgrading from v4.0.0
+# 3. Check provider health
+bun ~/.claude/PAI/Shell/pai-shell.ts --status
 
-```bash
-# 1. Back up
-cp -r ~/.claude ~/.claude-backup-$(date +%Y%m%d)
+# 4. Run interactively
+bun ~/.claude/PAI/Shell/pai-shell.ts
 
-# 2. Clone and copy
-git clone https://github.com/danielmiessler/Personal_AI_Infrastructure.git
-cd Personal_AI_Infrastructure/Releases/v4.0.1
-cp -r .claude ~/
-
-# 3. Run the installer
-cd ~/.claude && bash install.sh
-
-# 4. Rebuild CLAUDE.md
-bun ~/.claude/PAI/Tools/BuildCLAUDE.ts
-```
-
-### Quick Manual Upgrade (from v4.0.0)
-
-If you just want the temperature unit fix without re-running the installer:
-
-1. Add to your `~/.claude/settings.json`:
-```json
-"preferences": {
-  "temperatureUnit": "celsius"
-}
-```
-
-2. Copy the updated `statusline-command.sh` from this release over your existing one.
-
-3. Delete your weather cache to force a refresh:
-```bash
-rm -f ~/.claude/MEMORY/STATE/weather-cache.json
+# 5. Or single-shot mode
+bun ~/.claude/PAI/Shell/pai-shell.ts -p "Analyze this codebase"
 ```
 
 ---
 
-## Upgrading from Older Versions
+## Base Version
 
-See the [main README](../../README.md#upgrading-from-a-previous-version) for the general upgrade procedure. The installer auto-detects existing installations regardless of which version you're upgrading from.
+This release includes all changes from [PAI v4.0.1](../v4.0.1/README.md) (upgrade path improvements, temperature unit preferences, statusline fixes, spinner tips sync, FAQ fixes).
