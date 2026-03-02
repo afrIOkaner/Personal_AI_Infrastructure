@@ -4,12 +4,12 @@
 
 **Full fork of PAI v4.0.1 replacing Claude Code with an open, provider-agnostic orchestration layer.**
 
-[![Providers](https://img.shields.io/badge/Providers-10-22C55E?style=flat)](.claude/PAI/Shell/providers/)
-[![Tools](https://img.shields.io/badge/Tools-14-3B82F6?style=flat)](.claude/PAI/Shell/tools/)
-[![Lines](https://img.shields.io/badge/New_TS-4%2C479_lines-F97316?style=flat)](.claude/PAI/Shell/)
-[![Skills](https://img.shields.io/badge/Skills-63-8B5CF6?style=flat)](.claude/skills/)
-[![Hooks](https://img.shields.io/badge/Hooks-21-10B981?style=flat)](.claude/hooks/)
-[![Algorithm](https://img.shields.io/badge/Algorithm-v3.6.0-D97706?style=flat)](.claude/PAI/Algorithm/)
+[![Providers](https://img.shields.io/badge/Providers-10-22C55E?style=flat)](.pai-oss/PAI/Shell/providers/)
+[![Tools](https://img.shields.io/badge/Tools-14-3B82F6?style=flat)](.pai-oss/PAI/Shell/tools/)
+[![Lines](https://img.shields.io/badge/New_TS-4%2C479_lines-F97316?style=flat)](.pai-oss/PAI/Shell/)
+[![Skills](https://img.shields.io/badge/Skills-63-8B5CF6?style=flat)](.pai-oss/skills/)
+[![Hooks](https://img.shields.io/badge/Hooks-21-10B981?style=flat)](.pai-oss/hooks/)
+[![Algorithm](https://img.shields.io/badge/Algorithm-v3.6.0-D97706?style=flat)](.pai-oss/PAI/Algorithm/)
 
 </div>
 
@@ -75,6 +75,19 @@ Local-first: Ollama and llama.cpp enabled by default. Commercial APIs (OpenRoute
 
 ---
 
+## Directory Structure Change
+
+PAI-OSS moves the primary configuration directory from `.claude/` to `.pai-oss/` to reflect its provider-agnostic nature. A thin `.claude/CLAUDE.md` stub remains for Claude Code compatibility.
+
+| v4.0.1 Path | v4.0.1-OSS Path |
+|-------------|-----------------|
+| `.claude/` | `.pai-oss/` |
+| `.claude/CLAUDE.md` | `.pai-oss/PAI.md` |
+| `~/.claude/settings.json` | `~/.pai-oss/settings.json` |
+| `~/.claude/PAI/Shell/` | `~/.pai-oss/PAI/Shell/` |
+
+---
+
 ## Files Changed (from v4.0.1)
 
 | Path | Change |
@@ -111,19 +124,19 @@ Everything outside `PAI/Shell/` and `PAI/Tools/Inference.ts` is unchanged:
 
 ```bash
 # 1. Generate default settings
-bun ~/.claude/PAI/Shell/pai-shell.ts --init
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts --init
 
 # 2. Edit provider settings
-vim ~/.claude/pai-oss-settings.json
+vim ~/.pai-oss/settings.json
 
 # 3. Check provider health
-bun ~/.claude/PAI/Shell/pai-shell.ts --status
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts --status
 
 # 4. Run interactively
-bun ~/.claude/PAI/Shell/pai-shell.ts
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts
 
 # 5. Or single-shot mode
-bun ~/.claude/PAI/Shell/pai-shell.ts -p "Analyze this codebase"
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts -p "Analyze this codebase"
 ```
 
 ---

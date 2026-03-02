@@ -58,30 +58,34 @@ Each tier has configurable fallback chains (e.g., Ollama → OpenRouter → Open
 
 ```bash
 # 1. Generate default settings
-bun ~/.claude/PAI/Shell/pai-shell.ts --init
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts --init
 
 # 2. Edit settings to match your setup
-vim ~/.claude/pai-oss-settings.json
+vim ~/.pai-oss/settings.json
 
 # 3. Check provider health
-bun ~/.claude/PAI/Shell/pai-shell.ts --status
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts --status
 
 # 4. Run interactively
-bun ~/.claude/PAI/Shell/pai-shell.ts
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts
 
 # 5. Or single-shot
-bun ~/.claude/PAI/Shell/pai-shell.ts -p "Analyze this codebase"
+bun ~/.pai-oss/PAI/Shell/pai-shell.ts -p "Analyze this codebase"
 ```
 
 ## File Structure
 
 ```
-PAI/Shell/
-├── pai-shell.ts           # Main entry point — agentic REPL
-├── ModelRouter.ts         # Tier routing, fallbacks, health checks
-├── types.ts               # Core type definitions (OpenAI-compatible)
-├── defaults.ts            # Default provider/routing configuration
-├── providers/
+.pai-oss/
+├── PAI.md                 # Master config (replaces CLAUDE.md)
+├── PAI.md.template        # Source template with variables
+├── settings.json          # Provider & routing configuration
+├── PAI/Shell/
+│   ├── pai-shell.ts           # Main entry point — agentic REPL
+│   ├── ModelRouter.ts         # Tier routing, fallbacks, health checks
+│   ├── types.ts               # Core type definitions (OpenAI-compatible)
+│   ├── defaults.ts            # Default provider/routing configuration
+│   ├── providers/
 │   ├── Provider.ts        # Abstract interface + BaseAPIProvider + BaseCLIAgentProvider
 │   ├── OllamaProvider.ts
 │   ├── LlamaCppProvider.ts
@@ -102,15 +106,24 @@ PAI/Shell/
 │   ├── search-tools.ts    # grep_search, find_files
 │   └── agent-tools.ts     # ask_user, web_fetch, delegate_to_agent, todo_write, think
 └── lib/                   # Shared utilities (future)
+│
+├── PAI/Tools/
+│   ├── Inference.ts           # Unified inference (routes through ModelRouter)
+│   └── Inference.ts.original  # Original Claude CLI-based version (backup)
+│
+├── skills/                # 63 skills across 13 categories
+├── hooks/                 # 21 event-driven hooks
+├── agents/                # Custom agent definitions
+├── MEMORY/                # Session history, work logs
+└── ...
 
-PAI/Tools/
-├── Inference.ts           # Unified inference (routes through ModelRouter)
-└── Inference.ts.original  # Original Claude CLI-based version (backup)
+.claude/
+└── CLAUDE.md              # Thin compatibility stub → points to .pai-oss/
 ```
 
 ## Configuration
 
-Settings are loaded from `~/.claude/pai-oss-settings.json` (preferred) or `~/.claude/settings.json`.
+Settings are loaded from `~/.pai-oss/settings.json`.
 
 ```jsonc
 {
